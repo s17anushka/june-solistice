@@ -35,6 +35,6 @@ Plain HTML, CSS, and JavaScript. No frameworks. No build step. Just vibes and a 
 
 ## Submission
 
-Made for the [June Solstice Game Jam](https://dev.to/challenges/june-solstice-game-jam) on DEV.to (June 3–21, 2026).
+Made for the [June Solstice Game Jam](https://dev.to/challenges/june-game-jam-2026-06-03) on DEV.to (June 3–21, 2026).
 
 *"We can only see a short distance ahead, but we can see plenty there that needs to be done."* — Alan Turing
