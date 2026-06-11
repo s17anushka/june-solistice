@@ -20,6 +20,7 @@ export default async function handler(req, res) {
     }
     const { messages, systemPrompt } = body;
 
+    // Direct message mapping structure conversion
     const formattedContents = messages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
@@ -35,9 +36,11 @@ export default async function handler(req, res) {
     });
 
     const apiKey = process.env.GEMINI_API_KEY;
+    
+    // Stable v1beta exact identifier endpoint override logic
     const options = {
       hostname: 'generativelanguage.googleapis.com',
-      path: `/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, // Use v1beta with -latest suffix
+      path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +62,12 @@ export default async function handler(req, res) {
     const data = JSON.parse(apiResponse.data);
 
     if (data.error) {
-      return res.status(200).json({ text: JSON.stringify({ chapter: "Error", speech: `Google API Error: ${data.error.message}`, mode: "free" }) });
+      // Return details right on screen if it fails inside
+      return res.status(200).json({ text: JSON.stringify({ chapter: "Configuration Error", speech: `Google API Error: ${data.error.message}`, mode: "free" }) });
+    }
+
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      return res.status(200).json({ text: JSON.stringify({ chapter: "API Response Empty", speech: "Turing didn't respond. Check key balance or configuration context.", mode: "free" }) });
     }
 
     let replyText = data.candidates[0].content.parts[0].text;
@@ -70,6 +78,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ text: replyText });
 
   } catch (error) {
-    return res.status(200).json({ text: JSON.stringify({ chapter: "Crash", speech: `Internal Exception: ${error.message}`, mode: "free" }) });
+    return res.status(200).json({ text: JSON.stringify({ chapter: "Crash Log", speech: `Internal Exception: ${error.message}`, mode: "free" }) });
   }
 }
