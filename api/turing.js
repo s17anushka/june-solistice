@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const hfToken = process.env.HF_TOKEN;
 
     const options = {
-      hostname: 'api.huggingface.co',
+      hostname: 'router.huggingface.co',
       path: '/v1/chat/completions', // Standard OpenAI compatible endpoint mapping
       method: 'POST',
       headers: {
