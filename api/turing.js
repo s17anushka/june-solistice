@@ -29,7 +29,8 @@ export default async function handler(req, res) {
     const payload = JSON.stringify({
       model: 'google/gemini-2.5-flash', // OpenRoute Gemini 2.5 Flash model string
       messages: formattedMessages,
-      temperature: 1.0
+      temperature: 1.0,
+      max_tokens: 1000
     });
 
     // OPENROUTER KEY reading from environment variables
