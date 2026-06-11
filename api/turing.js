@@ -20,30 +20,36 @@ export default async function handler(req, res) {
     }
     const { messages, systemPrompt } = body;
 
-    // Standard Gemini Contents format
-    const formattedContents = messages.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
-    }));
+    // Strict instructions ko direct prompt ke top par merge kar rahe hain
+    // Taaki 'systemInstruction' field ki zaroorat hi na pade!
+    const injectionPrompt = `[CRITICAL SYSTEM INSTRUCTION: ${systemPrompt}]\n\n[RESPONSE RULE: You must ONLY respond with a raw, valid JSON object matching the requested schema. Do not wrap it in markdown code blocks like \`\`\`json. Return raw JSON text directly.]\n\n`;
 
-    // CRITICAL: v1 Stable endpoint strictly expects snake_case properties
+    const formattedContents = messages.map((msg, idx) => {
+      // Pehle user message me system instruction inject kar do
+      let textContent = msg.content;
+      if (idx === 0 && msg.role === 'user') {
+        textContent = injectionPrompt + textContent;
+      }
+      return {
+        role: msg.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: textContent }]
+      };
+    });
+
+    // Ekdam basic, minimal payload jo har version par chalta hai
     const payload = JSON.stringify({
       contents: formattedContents,
-      system_instruction: { 
-        parts: [{ text: systemPrompt }] 
-      },
-      generation_config: { 
-        response_mime_type: "application/json", 
-        temperature: 1.0 
+      generationConfig: { 
+        temperature: 0.7 // Strict JSON ke liye temperature thoda kam kiya
       }
     });
 
     const apiKey = process.env.GEMINI_API_KEY;
     
-    // v1 STABLE ENDPOINT: Universally active for all free tier keys
+    // Using v1beta as it universally supports the default models seamlessly
     const options = {
       hostname: 'generativelanguage.googleapis.com',
-      path: `/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,14 +71,16 @@ export default async function handler(req, res) {
     const data = JSON.parse(apiResponse.data);
 
     if (data.error) {
-      return res.status(200).json({ text: JSON.stringify({ chapter: "Quota/API Error", speech: `Google API Error: ${data.error.message}`, mode: "free" }) });
+      return res.status(200).json({ text: JSON.stringify({ chapter: "API Error", speech: `Google API Error: ${data.error.message}`, mode: "free" }) });
     }
 
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      return res.status(200).json({ text: JSON.stringify({ chapter: "Silent Oracle", speech: "Alan Turing's ghost remains silent. Check account restrictions.", mode: "free" }) });
+      return res.status(200).json({ text: JSON.stringify({ chapter: "Error", speech: "Empty content returned from Gemini.", mode: "free" }) });
     }
 
     let replyText = data.candidates[0].content.parts[0].text;
+    
+    // Agar model ne galti se markdown block laga bhi diya, toh use handle karne ke liye cleanup safety filter
     if (replyText && replyText.includes("```")) {
       replyText = replyText.replace(/```json|```/g, "").trim();
     }
