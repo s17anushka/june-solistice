@@ -2,9 +2,6 @@
 # ☀️ The Longest Test
 
 <p align="center">
-  <img src="https://images.prodia.xyz/af9637c3-2d2c-47ea-a2f0-109fc8f6d63d.png" width="100%" alt="The Longest Test Banner"/>
-</p>
-<p align="center">
   <strong>A narrative AI game built for the June Solstice Game Jam 2026.</strong><br/>
   <em>"We can only see a short distance ahead, but we can see plenty there that needs to be done." — Alan Turing</em>
 </p>
