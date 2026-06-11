@@ -28,9 +28,9 @@ export default async function handler(req, res) {
       ...messages
     ];
 
-    // SINGLE STABLE FREE MODEL: OpenRouter par standard free model config
+    // SINGLE STABLE FREE MODEL
     const payload = JSON.stringify({
-      model: 'openchat/openchat-7b:free', // Yeh model stable hai aur completely free tier par active hai
+      model: 'openrouter/auto:free', 
       messages: formattedMessages,
       temperature: 0.3,
       max_tokens: 800
