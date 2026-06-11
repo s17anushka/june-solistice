@@ -20,20 +20,19 @@ export default async function handler(req, res) {
     }
     const { messages, systemPrompt } = body;
 
-    // OpenRouter or openAI format  
     const formattedMessages = [
       { role: 'system', content: systemPrompt },
       ...messages
     ];
 
+    // Using the explicit free tier model with low max_tokens
     const payload = JSON.stringify({
-      model: 'google/gemini-2.5-flash', // OpenRoute Gemini 2.5 Flash model string
+      model: 'google/gemini-2.5-flash:free', 
       messages: formattedMessages,
       temperature: 1.0,
-      max_tokens: 1000
+      max_tokens: 800
     });
 
-    // OPENROUTER KEY reading from environment variables
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     const options = {
@@ -64,10 +63,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ text: JSON.stringify({ chapter: "OpenRouter Error", speech: `Error: ${data.error.message}`, mode: "free" }) });
     }
 
-    // Standard OpenAI/OpenRouter response text extraction
     let replyText = data.choices[0].message.content;
 
-    // Safety cleanup in case markdown block tags are included
     if (replyText && replyText.includes("```")) {
       replyText = replyText.replace(/```json|```/g, "").trim();
     }
