@@ -1,7 +1,8 @@
+
 # ☀️ The Longest Test
 
 <p align="center">
-  <img src="https://images.prodia.xyz/af9637c3-2d2c-47ea-a2f0-109fc8f6d63d.png" width="100%" alt="The Longest Test Banner"/>
+  <img src="https://imag<img width="2816" height="1536" alt="Gemini_Generated_Image_o5078go5078go507" src="https://github.com/user-attachments/assets/1204bf80-5da8-40d5-9780-d0d6b47f0973" />
 </p>
 <p align="center">
   <strong>A narrative AI game built for the June Solstice Game Jam 2026.</strong><br/>
