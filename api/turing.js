@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     // Using the explicit free tier model with low max_tokens
     const payload = JSON.stringify({
-      model: 'google/gemini-2.5-flash:free', 
+      model: 'meta-llama/llama-3-8b-instruct:free', 
       messages: formattedMessages,
       temperature: 1.0,
       max_tokens: 800
