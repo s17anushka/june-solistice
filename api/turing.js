@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     }
     const { messages, systemPrompt } = body;
 
-    // Direct message mapping structure conversion
+    // Convert history to Gemini parts specification
     const formattedContents = messages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
@@ -37,10 +37,10 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     
-    // Stable v1beta exact identifier endpoint override logic
+    // UPDATED MODEL: Using the standard production model route 'gemini-2.5-flash' on v1beta
     const options = {
       hostname: 'generativelanguage.googleapis.com',
-      path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      path: `/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,12 +62,11 @@ export default async function handler(req, res) {
     const data = JSON.parse(apiResponse.data);
 
     if (data.error) {
-      // Return details right on screen if it fails inside
-      return res.status(200).json({ text: JSON.stringify({ chapter: "Configuration Error", speech: `Google API Error: ${data.error.message}`, mode: "free" }) });
+      return res.status(200).json({ text: JSON.stringify({ chapter: "API Error", speech: `Google API Error: ${data.error.message}`, mode: "free" }) });
     }
 
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      return res.status(200).json({ text: JSON.stringify({ chapter: "API Response Empty", speech: "Turing didn't respond. Check key balance or configuration context.", mode: "free" }) });
+      return res.status(200).json({ text: JSON.stringify({ chapter: "Empty Reply", speech: "Turing is silent. Verify your key limits or account billing.", mode: "free" }) });
     }
 
     let replyText = data.candidates[0].content.parts[0].text;
