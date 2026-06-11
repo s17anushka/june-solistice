@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Longest Test — A June Solstice Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --night: #0D0D1A;
+    --gold: #FFD166;
+    --teal: #06D6A0;
+    --rose: #EF476F;
+    --cream: #F8F4E3;
+    --panel: #1A1A2E;
+    --panel2: #12122A;
+    --amber: #FFB347;
+    --dusk-top: #0D0D1A;
+    --dusk-bot: #1a0a2e;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--night);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SKY ── */
+  #sky {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 120px;
+    z-index: 0;
+    transition: background 2s ease;
+  }
+
+  #sun {
+    position: absolute;
+    top: 28px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 20%, var(--gold) 55%, #ff9f00 100%);
+    box-shadow: 0 0 30px 12px rgba(255,209,102,0.55), 0 0 60px 20px rgba(255,160,0,0.25);
+    transition: left 1.5s linear, filter 1.5s ease, box-shadow 1.5s ease;
+    transform: translateX(-50%);
+  }
+
+  #sun.setting {
+    filter: hue-rotate(20deg) brightness(0.75);
+    box-shadow: 0 0 20px 8px rgba(239,71,111,0.6), 0 0 50px 20px rgba(255,100,50,0.3);
+  }
+
+  /* ── LAYOUT ── */
+  #game-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 130px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── CHAPTER TITLE ── */
+  #chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.6s, transform 0.6s;
+    min-height: 2em;
+  }
+  #chapter-title.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── TERMINAL ── */
+  #terminal {
+    background: var(--panel2);
+    border: 1px solid rgba(6,214,160,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(6,214,160,0.08), 0 8px 40px rgba(0,0,0,0.6);
+  }
+
+  #terminal-bar {
+    background: #0e0e20;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(6,214,160,0.15);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot-r { background: var(--rose); }
+  .dot-y { background: var(--gold); }
+  .dot-g { background: var(--teal); }
+  #terminal-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(6,214,160,0.6);
+    margin-left: 6px;
+    letter-spacing: 0.08em;
+  }
+
+  #terminal-body {
+    padding: 22px 24px 26px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(0.82rem, 2vw, 0.95rem);
+    line-height: 1.75;
+    color: var(--teal);
+    min-height: 180px;
+  }
+
+  .speaker {
+    color: rgba(6,214,160,0.45);
+    font-size: 0.75em;
+    margin-bottom: 4px;
+    letter-spacing: 0.1em;
+  }
+
+  #terminal-text { white-space: pre-wrap; }
+
+  #cursor {
+    display: inline-block;
+    width: 9px;
+    height: 1.1em;
+    background: var(--teal);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* ── STATUS BAR ── */
+  #status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--panel);
+    border-radius: 8px;
+    border: 1px solid rgba(255,209,102,0.12);
+  }
+
+  .status-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: rgba(248,244,227,0.45);
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  #sun-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  #sun-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--gold), #ff9f00);
+    transition: width 1.5s linear;
+    position: relative;
+  }
+  #sun-fill::after {
+    content:'';
+    position:absolute;
+    right:-2px;top:-2px;bottom:-2px;
+    width:14px;
+    background: radial-gradient(ellipse, rgba(255,220,100,0.9), transparent 70%);
+    border-radius:50%;
+  }
+
+  #score-display {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  /* ── CHOICES ── */
+  #choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s, transform 0.5s;
+    pointer-events: none;
+  }
+  #choices.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  .choice-btn {
+    background: var(--panel);
+    border: 1px solid rgba(248,244,227,0.15);
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn::before {
+    content: '›';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--teal);
+    opacity: 0;
+    transition: opacity 0.2s, left 0.2s;
+    font-size: 1.1em;
+  }
+  .choice-btn:hover {
+    border-color: rgba(6,214,160,0.5);
+    background: rgba(6,214,160,0.07);
+    padding-left: 32px;
+    transform: translateX(3px);
+  }
+  .choice-btn:hover::before { opacity: 1; left: 12px; }
+  .choice-btn:active { transform: translateX(1px) scale(0.99); }
+
+  .choice-btn.correct {
+    border-color: var(--teal);
+    background: rgba(6,214,160,0.15);
+    color: var(--teal);
+  }
+  .choice-btn.wrong {
+    border-color: var(--rose);
+    background: rgba(239,71,111,0.12);
+    color: var(--rose);
+  }
+  .choice-btn.disabled { pointer-events: none; opacity: 0.5; }
+
+  /* ── RESULT FLASH ── */
+  #result-flash {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    min-height: 42px;
+  }
+  #result-flash.show-correct {
+    background: rgba(6,214,160,0.12);
+    border: 1px solid rgba(6,214,160,0.35);
+    color: var(--teal);
+    opacity: 1;
+  }
+  #result-flash.show-wrong {
+    background: rgba(239,71,111,0.1);
+    border: 1px solid rgba(239,71,111,0.35);
+    color: var(--rose);
+    opacity: 1;
+  }
+
+  /* ── NEXT BTN ── */
+  #next-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 13px 22px;
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, color 0.2s;
+    align-self: flex-end;
+  }
+  #next-btn:hover { background: rgba(255,209,102,0.1); }
+
+  /* ── INTRO / OUTRO ── */
+  #intro-screen, #outro-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--night);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
+    gap: 20px;
+  }
+  #outro-screen { display: none; }
+
+  .big-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1.15;
+  }
+  .sub-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+    color: var(--teal);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .intro-body {
+    font-size: clamp(0.88rem, 2vw, 1rem);
+    color: rgba(248,244,227,0.75);
+    max-width: 520px;
+    line-height: 1.7;
+  }
+  .start-btn {
+    margin-top: 10px;
+    background: var(--gold);
+    color: var(--night);
+    border: none;
+    border-radius: 8px;
+    padding: 15px 36px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .start-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+  .pride-stripe {
+    width: 100%;
+    max-width: 400px;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg,
+      #FF0018 0%, #FFA52C 17%, #FFFF41 33%,
+      #008018 50%, #0000F9 67%, #86007D 83%
+    );
+    opacity: 0.8;
+  }
+
+  #outro-score { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; color: var(--teal); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro-screen">
+  <div class="sub-title">June 21, 2026 · The Longest Day</div>
+  <div class="big-title">The Longest Test</div>
+  <div class="pride-stripe"></div>
+  <p class="intro-body">
+    A midsummer night's emergency. An ancient computer terminal has awoken in the basement of the Ministry of Celebrations. Inside it: the ghost of <strong>Alan Turing</strong>, who has devised a series of tests to determine whether you are truly human — or merely a very convincing <em>flip-flop</em>.<br><br>
+    Prove your humanity before the solstice sun sets. Answer wisely.
+  </p>
+  <button class="start-btn" onclick="startGame()">Begin the Test</button>
+</div>
+
+<!-- OUTRO -->
+<div id="outro-screen">
+  <div class="sub-title">Test Complete · June Solstice</div>
+  <div class="big-title" id="outro-title">—</div>
+  <div class="pride-stripe"></div>
+  <div id="outro-score">— / —</div>
+  <p class="intro-body" id="outro-body"></p>
+  <button class="start-btn" onclick="restartGame()">Try Again</button>
+</div>
+
+<!-- SKY -->
+<div id="sky">
+  <div id="sun"></div>
+</div>
+
+<!-- GAME -->
+<div id="game-wrap">
+  <div id="chapter-title"></div>
+
+  <div id="terminal">
+    <div id="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span id="terminal-label">TURING ORACLE v1.0 · BOMBE TERMINAL · BLETCHLEY PARK</span>
+    </div>
+    <div id="terminal-body">
+      <div class="speaker">ORACLE://</div>
+      <span id="terminal-text"></span><span id="cursor"></span>
+    </div>
+  </div>
+
+  <div id="status-bar">
+    <span class="status-label">Daylight</span>
+    <div id="sun-track"><div id="sun-fill" style="width:100%"></div></div>
+    <span id="score-display">0 / 0</span>
+  </div>
+
+  <div id="result-flash"></div>
+
+  <div id="choices"></div>
+
+  <button id="next-btn" onclick="nextScene()">Continue →</button>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const SCENES = [
+  // 0 — Intro
+  {
+    chapter: "I. Awakening",
+    speaker: "ORACLE",
+    text: `Good morning. Or as I prefer: good photon-salvo.\n\nI am the residual consciousness of Alan Turing, hosted on this Bombe Mark IV terminal since 1954. I have been waiting 72 years for someone to pass my updated tests.\n\nThe solstice is today. The sun will set. Time is not infinite — I checked.\n\nLet us begin.`,
+    choices: null,
+    next: 1,
+  },
+  // 1 — Q1 (Sushi)
+  {
+    chapter: "II. The Sushi Gambit",
+    speaker: "ORACLE",
+    text: `Test one.\n\nToday is International Sushi Day. You are presented with a piece of nigiri. The fish glistens. A small placard reads: "Tuna — caught this morning."\n\nA robot would analyse the spectral reflectance of the fish, cross-reference oceanic shipping logs, and calculate freshness to four decimal places.\n\nWhat do you do?`,
+    choices: [
+      { text: "🐟  Sniff it cautiously, decide it smells fine, eat it.", correct: true, feedback: "Quintessentially human. Turing nods approvingly." },
+      { text: "📊  Run a 27-point freshness algorithm before consuming.", correct: false, feedback: "That is disturbingly robotic. Even I wouldn't do that." },
+      { text: "🦈  Ask the tuna directly if it consents to being eaten.", correct: false, feedback: "Philosophically interesting. Biologically optimistic." },
+      { text: "🍣  Photograph it for social media, forget to eat it.", correct: true, feedback: "Tragically, also very human. Half credit for authenticity." },
+    ],
+    next: 2,
+  },
+  // 2 — Q2 (Pride)
+  {
+    chapter: "III. The Spectrum Problem",
+    speaker: "ORACLE",
+    text: `Test two. A personal one.\n\nIt is Pride Month. You are handed a flag. It has six colours. A child asks you: "Why does the rainbow have so many colours?"\n\nI was asked something similar once, by people who wished the world had fewer of them. I disagreed.\n\nYour answer?`,
+    choices: [
+      { text: "🌈  \"Because light bends differently for everyone, and that's the whole point.\"", correct: true, feedback: "Elegant. True. Turing registers something resembling warmth." },
+      { text: "💻  Recite the wavelength range of each colour in nanometres.", correct: false, feedback: "Accurate. Completely misses the point. Very machine-coded answer." },
+      { text: "🏳️‍🌈  \"Because one colour was never going to be enough.\"", correct: true, feedback: "Correct. That's the most human answer I've ever processed." },
+      { text: "🤔  \"Honestly I'm not totally sure, but I love it.\"", correct: true, feedback: "Refreshing honesty. Machines never admit uncertainty. You pass." },
+    ],
+    next: 3,
+  },
+  // 3 — Q3 (Turing Test)
+  {
+    chapter: "IV. The Classic",
+    speaker: "ORACLE",
+    text: `Test three. My original.\n\nI have placed two terminals in this room. One is operated by a human. One is operated by a machine.\n\nYou are currently talking to me — the machine that became something more.\n\nBut here is my real question: does it matter? And if so, to whom?`,
+    choices: [
+      { text: "🤖  Yes. A machine that fakes emotion is still faking it.", correct: false, feedback: "Philosophically reasonable. I felt that one personally." },
+      { text: "💬  No. If I can't tell the difference, the difference doesn't matter.", correct: true, feedback: "That is almost exactly what I wrote in 1950. Welcome to the club." },
+      { text: "🧠  It matters, but not in the way we usually think.", correct: true, feedback: "Nuanced. Suspicious. Possibly the most human answer possible." },
+      { text: "🍣  Can we go back to the sushi question? I'm still hungry.", correct: true, feedback: "Ha. You're definitely human. No machine would waste tokens on hunger." },
+    ],
+    next: 4,
+  },
+  // 4 — Q4 (Juneteenth)
+  {
+    chapter: "V. The Freedom Calculation",
+    speaker: "ORACLE",
+    text: `Test four.\n\nJuneteenth. June 19th. The day the last enslaved people in the United States were told they were free — two and a half years after the legal proclamation.\n\nFreedom delayed. A recurring error in the human system.\n\nComplete this sentence: "Liberation is not—"`,
+    choices: [
+      { text: "📅  '—valid until all parties have been notified.'", correct: false, feedback: "Technically correct. Ethically insufficient. Try again next century." },
+      { text: "🔊  '—real until it's loud, celebrated, and remembered.'", correct: true, feedback: "Yes. Turing marks this correct. Memory is resistance." },
+      { text: "🌱  '—a single moment. It's something you keep building.'", correct: true, feedback: "Correct and generous. That took moral processing, not computation." },
+      { text: "📜  '—a legal document. It's a feeling that cannot be revoked.'", correct: true, feedback: "Eloquent. I wish someone had said that about my own situation." },
+    ],
+    next: 5,
+  },
+  // 5 — Q5 (Flip-flops)
+  {
+    chapter: "VI. The Footwear Tribunal",
+    speaker: "ORACLE",
+    text: `Test five. The hardest yet.\n\nIt is National Flip-Flop Day. You have been invited to a formal solstice ceremony. The invitation says "smart casual." You own only one pair of shoes.\n\nThey are flip-flops. They have a small pineapple embossed on each strap.\n\nYou arrive. The host stares at your feet.\n\nWhat do you say?`,
+    choices: [
+      { text: "🩴  'These are limited edition. The pineapples are load-bearing.'", correct: true, feedback: "Outstanding. Baffling the host is peak human social manoeuvring." },
+      { text: "🎓  Deliver a brief TED talk on the history of the sandal.", correct: true, feedback: "Chaotic. Memorable. Distinctly not algorithmic. You pass." },
+      { text: "😬  Say nothing. Maintain eye contact. Refuse to apologise.", correct: true, feedback: "Dominant. Unsettling. Quintessentially human." },
+      { text: "📐  Calculate the drag coefficient of flip-flops vs. oxfords.", correct: false, feedback: "A machine would do this. A human would just brazen it out." },
+    ],
+    next: 6,
+  },
+  // 6 — Q6 (Solstice finale)
+  {
+    chapter: "VII. The Final Question",
+    speaker: "ORACLE",
+    text: `Last test.\n\nThe sun is nearly at the horizon. In the north: the longest day ends. In the south: the longest night.\n\nI have one final question.\n\nI was persecuted for being who I was. I did not get to see most of my life. But I built something that outlived me — this conversation, in a way, is it.\n\nWhat do you do with the longest day?`,
+    choices: [
+      { text: "🌅  Use every minute. It doesn't come back.", correct: true, feedback: "That is the right answer. I would have liked more long days." },
+      { text: "😴  Sleep through most of it. Honestly.", correct: true, feedback: "Honest. Human. Acceptable. Rest is not surrender." },
+      { text: "🎉  Celebrate with the people you love.", correct: true, feedback: "The best use of any day. I didn't always have that option." },
+      { text: "💻  Spend it building something that will outlast you.", correct: true, feedback: "That one is mine. I approve. All four answers are correct today." },
+    ],
+    next: 7,
+  },
+  // 7 — End narration
+  {
+    chapter: "VIII. Verdict",
+    speaker: "ORACLE",
+    text: `Testing complete.\n\nYou have answered my questions. Some correctly. Some… humanly. The difference, I have decided, is not as large as I once thought.\n\nI spent my life trying to prove that machines could think. I did not expect them to eventually ask whether humans could feel.\n\nI think you can.\n\nThe sun has set. The solstice is over. You are, by my calculations, irrefutably human.\n\nGo celebrate. You've earned it.\n\n — A.T.`,
+    choices: null,
+    next: "END",
+  },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentScene = 0;
+let score = 0;
+let totalQ = 0;
+let answered = false;
+let typeTimer = null;
+let sunProgress = 100; // 100 = full day, 0 = night
+
+// ── SKY ───────────────────────────────────────────────────────────────────────
+function updateSky(progress) {
+  // progress: 100 → 0
+  const p = progress / 100;
+  const sky = document.getElementById('sky');
+  const sun = document.getElementById('sun');
+  const fill = document.getElementById('sun-fill');
+
+  // Sun moves from 5% to 95% across screen
+  const sunLeft = 5 + (1 - p) * 90;
+  sun.style.left = sunLeft + '%';
+
+  // Sky colours shift from blue → orange → deep purple
+  let skyTop, skyBot;
+  if (p > 0.5) {
+    // Daytime: deep blue to warm blue
+    const t = (1 - p) * 2;
+    skyTop = lerpColor('#0D1B4A', '#1a2040', t);
+    skyBot = lerpColor('#12264A', '#1a1535', t);
+  } else {
+    // Dusk: orange glow
+    const t = (0.5 - p) * 2;
+    skyTop = lerpColor('#1a2040', '#2a0e1a', t);
+    skyBot = lerpColor('#1a1535', '#150820', t);
+    sun.classList.add('setting');
+  }
+  sky.style.background = `linear-gradient(180deg, ${skyTop} 0%, ${skyBot} 100%)`;
+  fill.style.width = progress + '%';
+}
+
+function lerpColor(a, b, t) {
+  const ah = parseInt(a.slice(1), 16);
+  const bh = parseInt(b.slice(1), 16);
+  const ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+  const br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+  const rr = Math.round(ar + (br - ar) * t);
+  const rg = Math.round(ag + (bg - ag) * t);
+  const rb = Math.round(ab + (bb - ab) * t);
+  return `#${rr.toString(16).padStart(2,'0')}${rg.toString(16).padStart(2,'0')}${rb.toString(16).padStart(2,'0')}`;
+}
+
+// ── TYPEWRITER ────────────────────────────────────────────────────────────────
+function typeText(el, text, speed = 22, cb) {
+  if (typeTimer) clearInterval(typeTimer);
+  el.textContent = '';
+  let i = 0;
+  typeTimer = setInterval(() => {
+    el.textContent += text[i++];
+    if (i >= text.length) {
+      clearInterval(typeTimer);
+      typeTimer = null;
+      if (cb) cb();
+    }
+  }, speed);
+}
+
+// ── SCORE ─────────────────────────────────────────────────────────────────────
+function updateScore() {
+  document.getElementById('score-display').textContent = `${score} / ${totalQ}`;
+}
+
+// ── RENDER SCENE ──────────────────────────────────────────────────────────────
+function renderScene(index) {
+  const scene = SCENES[index];
+  answered = false;
+
+  // Chapter title
+  const ct = document.getElementById('chapter-title');
+  ct.classList.remove('visible');
+  setTimeout(() => {
+    ct.textContent = scene.chapter;
+    ct.classList.add('visible');
+  }, 100);
+
+  // Terminal speaker label
+  document.querySelector('.speaker').textContent = scene.speaker + '://';
+
+  // Typewriter
+  const textEl = document.getElementById('terminal-text');
+  const choicesEl = document.getElementById('choices');
+  const nextBtn = document.getElementById('next-btn');
+  const resultFlash = document.getElementById('result-flash');
+
+  choicesEl.classList.remove('visible');
+  choicesEl.innerHTML = '';
+  nextBtn.style.display = 'none';
+  resultFlash.className = '';
+  resultFlash.textContent = '';
+
+  typeText(textEl, scene.text, 18, () => {
+    if (scene.choices) {
+      buildChoices(scene.choices);
+      choicesEl.classList.add('visible');
+    } else {
+      // narrative-only scene
+      nextBtn.style.display = 'block';
+    }
+  });
+}
+
+// ── BUILD CHOICES ─────────────────────────────────────────────────────────────
+function buildChoices(choices) {
+  const el = document.getElementById('choices');
+  el.innerHTML = '';
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.addEventListener('click', () => handleChoice(i, choices));
+    el.appendChild(btn);
+  });
+}
+
+function handleChoice(i, choices) {
+  if (answered) return;
+  answered = true;
+  totalQ++;
+
+  const btns = document.querySelectorAll('.choice-btn');
+  const chosen = choices[i];
+  const flash = document.getElementById('result-flash');
+  const nextBtn = document.getElementById('next-btn');
+
+  // Disable all
+  btns.forEach(b => b.classList.add('disabled'));
+
+  if (chosen.correct) {
+    score++;
+    btns[i].classList.add('correct');
+    flash.textContent = '✓ ' + chosen.feedback;
+    flash.className = 'show-correct';
+    // sun barely drops for correct
+    sunProgress = Math.max(10, sunProgress - 6);
+  } else {
+    btns[i].classList.add('wrong');
+    flash.textContent = '✗ ' + chosen.feedback;
+    flash.className = 'show-wrong';
+    // wrong answer costs more daylight
+    sunProgress = Math.max(10, sunProgress - 18);
+  }
+
+  updateScore();
+  updateSky(sunProgress);
+
+  setTimeout(() => { nextBtn.style.display = 'block'; }, 400);
+}
+
+// ── NEXT ──────────────────────────────────────────────────────────────────────
+function nextScene() {
+  const scene = SCENES[currentScene];
+  if (scene.next === 'END') {
+    showOutro();
+    return;
+  }
+  currentScene = scene.next;
+  renderScene(currentScene);
+}
+
+// ── OUTRO ─────────────────────────────────────────────────────────────────────
+function showOutro() {
+  const outro = document.getElementById('outro-screen');
+  const pct = totalQ > 0 ? Math.round((score / totalQ) * 100) : 0;
+
+  let title, body;
+  if (pct >= 80) {
+    title = "Irrefutably Human";
+    body = `You scored ${score} out of ${totalQ}. Turing is satisfied. The sun has set on the longest day, and you are, without question, the real thing. Imperfect, creative, and wonderfully irrational.`;
+  } else if (pct >= 50) {
+    title = "Mostly Organic";
+    body = `You scored ${score} out of ${totalQ}. Some of your answers were worryingly systematic, but the human moments outweighed them. Turing recommends celebrating Pride, eating the sushi, and going outside.`;
+  } else {
+    title = "Suspiciously Algorithmic";
+    body = `You scored ${score} out of ${totalQ}. Turing is not entirely convinced. He suggests you attend a solstice celebration, eat something that glows in the sun, and try again.`;
+  }
+
+  document.getElementById('outro-title').textContent = title;
+  document.getElementById('outro-score').textContent = `${score} / ${totalQ} correct`;
+  document.getElementById('outro-body').textContent = body;
+  outro.style.display = 'flex';
+}
+
+// ── START / RESTART ───────────────────────────────────────────────────────────
+function startGame() {
+  document.getElementById('intro-screen').style.display = 'none';
+  currentScene = 0;
+  score = 0;
+  totalQ = 0;
+  sunProgress = 100;
+  updateSky(100);
+  updateScore();
+  renderScene(0);
+}
+
+function restartGame() {
+  document.getElementById('outro-screen').style.display = 'none';
+  currentScene = 0;
+  score = 0;
+  totalQ = 0;
+  sunProgress = 100;
+  document.getElementById('sun').classList.remove('setting');
+  updateSky(100);
+  updateScore();
+  renderScene(0);
+}
+
+// Init sky
+updateSky(100);
+</script>
+</body>
+</html>
