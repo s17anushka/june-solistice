@@ -7,153 +7,64 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --night:#0D0D1A;--gold:#FFD166;--teal:#06D6A0;--rose:#EF476F;
-  --cream:#F8F4E3;--panel:#1A1A2E;--panel2:#12122A;
-}
+:root{--night:#0D0D1A;--gold:#FFD166;--teal:#06D6A0;--rose:#EF476F;--cream:#F8F4E3;--panel:#1A1A2E;--panel2:#12122A}
 html,body{height:100%;overflow-x:hidden}
 body{font-family:'Inter',sans-serif;background:var(--night);color:var(--cream);min-height:100vh}
-
-/* SKY */
-#sky{position:fixed;top:0;left:0;right:0;height:110px;z-index:0;
-  background:linear-gradient(180deg,#0D1B4A 0%,#12264A 100%);
-  transition:background 2s ease}
-#sun{position:absolute;top:24px;left:5%;width:50px;height:50px;border-radius:50%;
-  background:radial-gradient(circle,#fff 18%,var(--gold) 52%,#ff9f00 100%);
-  box-shadow:0 0 28px 10px rgba(255,209,102,.55),0 0 55px 18px rgba(255,160,0,.22);
-  transition:left 1.8s ease,filter 1.8s ease,box-shadow 1.8s ease;
-  transform:translateX(-50%)}
-#sun.setting{filter:hue-rotate(18deg) brightness(.72);
-  box-shadow:0 0 22px 9px rgba(239,71,111,.6),0 0 50px 20px rgba(255,90,40,.28)}
-
-/* LAYOUT */
-#game-wrap{position:relative;z-index:1;max-width:740px;margin:0 auto;
-  padding:122px 16px 48px;display:flex;flex-direction:column;gap:18px}
-
-/* CHAPTER */
-#chapter-title{font-family:'Playfair Display',serif;font-style:italic;
-  font-size:clamp(1rem,2.8vw,1.4rem);color:var(--gold);letter-spacing:.02em;
-  opacity:0;transform:translateY(-5px);transition:opacity .5s,transform .5s;min-height:1.8em}
+#sky{position:fixed;top:0;left:0;right:0;height:110px;z-index:0;background:linear-gradient(180deg,#0D1B4A 0%,#12264A 100%);transition:background 2s ease}
+#sun{position:absolute;top:24px;left:5%;width:50px;height:50px;border-radius:50%;background:radial-gradient(circle,#fff 18%,var(--gold) 52%,#ff9f00 100%);box-shadow:0 0 28px 10px rgba(255,209,102,.55),0 0 55px 18px rgba(255,160,0,.22);transition:left 1.8s ease,filter 1.8s ease,box-shadow 1.8s ease;transform:translateX(-50%)}
+#sun.setting{filter:hue-rotate(18deg) brightness(.72);box-shadow:0 0 22px 9px rgba(239,71,111,.6),0 0 50px 20px rgba(255,90,40,.28)}
+#game-wrap{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:122px 16px 48px;display:flex;flex-direction:column;gap:18px}
+#chapter-title{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1rem,2.8vw,1.4rem);color:var(--gold);letter-spacing:.02em;opacity:0;transform:translateY(-5px);transition:opacity .5s,transform .5s;min-height:1.8em}
 #chapter-title.show{opacity:1;transform:translateY(0)}
-
-/* TERMINAL */
-#terminal{background:var(--panel2);border:1px solid rgba(6,214,160,.22);
-  border-radius:10px;overflow:hidden;
-  box-shadow:0 0 0 1px rgba(6,214,160,.07),0 8px 38px rgba(0,0,0,.55)}
-#t-bar{background:#0b0b1e;padding:9px 14px;display:flex;align-items:center;gap:8px;
-  border-bottom:1px solid rgba(6,214,160,.13)}
+#terminal{background:var(--panel2);border:1px solid rgba(6,214,160,.22);border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(6,214,160,.07),0 8px 38px rgba(0,0,0,.55)}
+#t-bar{background:#0b0b1e;padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(6,214,160,.13)}
 .dot{width:11px;height:11px;border-radius:50%}
 .dr{background:var(--rose)}.dy{background:var(--gold)}.dg{background:var(--teal)}
-#t-label{font-family:'Share Tech Mono',monospace;font-size:.68rem;
-  color:rgba(6,214,160,.55);margin-left:6px;letter-spacing:.08em}
-#t-body{padding:20px 22px 24px;font-family:'Share Tech Mono',monospace;
-  font-size:clamp(.8rem,1.9vw,.93rem);line-height:1.78;color:var(--teal)}
+#t-label{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:rgba(6,214,160,.55);margin-left:6px;letter-spacing:.08em}
+#t-body{padding:20px 22px 24px;font-family:'Share Tech Mono',monospace;font-size:clamp(.8rem,1.9vw,.93rem);line-height:1.78;color:var(--teal)}
 .speaker{color:rgba(6,214,160,.4);font-size:.72em;margin-bottom:6px;letter-spacing:.1em}
 #t-text{white-space:pre-wrap}
-#cursor{display:inline-block;width:8px;height:1em;background:var(--teal);
-  vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite}
+#cursor{display:inline-block;width:8px;height:1em;background:var(--teal);vertical-align:middle;margin-left:2px;animation:blink 1s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-/* SKIP */
-#skip-btn{display:none;align-self:flex-end;background:transparent;
-  border:1px solid rgba(6,214,160,.28);border-radius:6px;padding:5px 13px;
-  color:rgba(6,214,160,.55);font-family:'Share Tech Mono',monospace;font-size:.7rem;
-  cursor:pointer;letter-spacing:.07em;transition:all .18s}
+#skip-btn{display:none;align-self:flex-end;background:transparent;border:1px solid rgba(6,214,160,.28);border-radius:6px;padding:5px 13px;color:rgba(6,214,160,.55);font-family:'Share Tech Mono',monospace;font-size:.7rem;cursor:pointer;letter-spacing:.07em;transition:all .18s}
 #skip-btn:hover{border-color:var(--teal);color:var(--teal)}
-
-/* STATUS */
-#status-bar{display:flex;align-items:center;gap:12px;padding:9px 15px;
-  background:var(--panel);border-radius:8px;border:1px solid rgba(255,209,102,.1)}
-.slabel{font-size:.68rem;letter-spacing:.1em;color:rgba(248,244,227,.4);
-  text-transform:uppercase;font-family:'Share Tech Mono',monospace;white-space:nowrap}
+#status-bar{display:flex;align-items:center;gap:12px;padding:9px 15px;background:var(--panel);border-radius:8px;border:1px solid rgba(255,209,102,.1)}
+.slabel{font-size:.68rem;letter-spacing:.1em;color:rgba(248,244,227,.4);text-transform:uppercase;font-family:'Share Tech Mono',monospace;white-space:nowrap}
 #sun-track{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
-#sun-fill{height:100%;border-radius:4px;
-  background:linear-gradient(90deg,var(--gold),#ff9f00);
-  transition:width 1.6s linear;width:100%}
-#q-counter{font-family:'Share Tech Mono',monospace;font-size:.82rem;
-  color:var(--gold);white-space:nowrap}
-
-/* FLASH */
-#flash{min-height:38px;border-radius:6px;padding:9px 14px;
-  font-family:'Share Tech Mono',monospace;font-size:.82rem;
-  opacity:0;transition:opacity .25s;text-align:center}
-#flash.ok{background:rgba(6,214,160,.1);border:1px solid rgba(6,214,160,.3);
-  color:var(--teal);opacity:1}
-#flash.bad{background:rgba(239,71,111,.09);border:1px solid rgba(239,71,111,.3);
-  color:var(--rose);opacity:1}
-
-/* CHOICES */
-#choices{display:flex;flex-direction:column;gap:9px;
-  opacity:0;transform:translateY(7px);
-  transition:opacity .45s,transform .45s;pointer-events:none}
+#sun-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),#ff9f00);transition:width 1.6s linear;width:100%}
+#q-counter{font-family:'Share Tech Mono',monospace;font-size:.82rem;color:var(--gold);white-space:nowrap}
+#flash{min-height:38px;border-radius:6px;padding:9px 14px;font-family:'Share Tech Mono',monospace;font-size:.82rem;opacity:0;transition:opacity .25s;text-align:center}
+#flash.ok{background:rgba(6,214,160,.1);border:1px solid rgba(6,214,160,.3);color:var(--teal);opacity:1}
+#flash.bad{background:rgba(239,71,111,.09);border:1px solid rgba(239,71,111,.3);color:var(--rose);opacity:1}
+#choices{display:flex;flex-direction:column;gap:9px;opacity:0;transform:translateY(7px);transition:opacity .45s,transform .45s;pointer-events:none}
 #choices.show{opacity:1;transform:translateY(0);pointer-events:all}
-.cbtn{background:var(--panel);border:1px solid rgba(248,244,227,.13);
-  border-radius:8px;padding:13px 17px;color:var(--cream);
-  font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;
-  text-align:left;cursor:pointer;line-height:1.4;
-  transition:border-color .18s,background .18s,padding-left .18s,transform .13s;
-  position:relative}
-.cbtn::before{content:'›';position:absolute;left:15px;top:50%;
-  transform:translateY(-50%);color:var(--teal);opacity:0;
-  transition:opacity .18s,left .18s;font-size:1.1em}
-.cbtn:hover{border-color:rgba(6,214,160,.48);background:rgba(6,214,160,.07);
-  padding-left:30px;transform:translateX(2px)}
+.cbtn{background:var(--panel);border:1px solid rgba(248,244,227,.13);border-radius:8px;padding:13px 17px;color:var(--cream);font-family:'Inter',sans-serif;font-size:.9rem;font-weight:500;text-align:left;cursor:pointer;line-height:1.4;transition:border-color .18s,background .18s,padding-left .18s,transform .13s;position:relative}
+.cbtn::before{content:'›';position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--teal);opacity:0;transition:opacity .18s,left .18s;font-size:1.1em}
+.cbtn:hover{border-color:rgba(6,214,160,.48);background:rgba(6,214,160,.07);padding-left:30px;transform:translateX(2px)}
 .cbtn:hover::before{opacity:1;left:11px}
 .cbtn.disabled{pointer-events:none}
 .cbtn.correct{border-color:var(--teal);background:rgba(6,214,160,.14);color:var(--teal)}
 .cbtn.wrong{border-color:var(--rose);background:rgba(239,71,111,.11);color:var(--rose)}
-
-/* FREE TEXT INPUT */
 #free-wrap{display:none;flex-direction:column;gap:8px}
-#free-input{background:var(--panel);border:1px solid rgba(248,244,227,.18);
-  border-radius:8px;padding:12px 15px;color:var(--cream);
-  font-family:'Inter',sans-serif;font-size:.9rem;
-  resize:vertical;min-height:80px;outline:none;
-  transition:border-color .18s}
+#free-input{background:var(--panel);border:1px solid rgba(248,244,227,.18);border-radius:8px;padding:12px 15px;color:var(--cream);font-family:'Inter',sans-serif;font-size:.9rem;resize:vertical;min-height:80px;outline:none;transition:border-color .18s}
 #free-input:focus{border-color:rgba(6,214,160,.5)}
-#free-submit{align-self:flex-end;background:var(--teal);color:var(--night);
-  border:none;border-radius:7px;padding:10px 22px;
-  font-family:'Inter',sans-serif;font-weight:700;font-size:.88rem;
-  cursor:pointer;transition:opacity .18s}
+#free-submit{align-self:flex-end;background:var(--teal);color:var(--night);border:none;border-radius:7px;padding:10px 22px;font-family:'Inter',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:opacity .18s}
 #free-submit:hover{opacity:.85}
 #free-submit:disabled{opacity:.4;cursor:default}
-
-/* NEXT */
-#next-btn{display:none;align-self:flex-end;background:transparent;
-  border:1px solid var(--gold);border-radius:8px;padding:11px 22px;
-  color:var(--gold);font-family:'Inter',sans-serif;font-weight:600;font-size:.88rem;
-  cursor:pointer;letter-spacing:.04em;transition:background .18s}
+#next-btn{display:none;align-self:flex-end;background:transparent;border:1px solid var(--gold);border-radius:8px;padding:11px 22px;color:var(--gold);font-family:'Inter',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;letter-spacing:.04em;transition:background .18s}
 #next-btn:hover{background:rgba(255,209,102,.09)}
-
-/* INTRO / OUTRO */
-#intro,#outro{position:fixed;inset:0;background:var(--night);z-index:100;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:32px;text-align:center;gap:18px}
+#intro,#outro{position:fixed;inset:0;background:var(--night);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:18px}
 #outro{display:none}
-.big{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,5.5vw,3.2rem);
-  font-weight:700;color:var(--gold);line-height:1.15}
-.sub{font-family:'Share Tech Mono',monospace;font-size:clamp(.75rem,1.9vw,.95rem);
-  color:var(--teal);letter-spacing:.12em;text-transform:uppercase}
-.ibody{font-size:clamp(.85rem,1.9vw,.97rem);color:rgba(248,244,227,.72);
-  max-width:500px;line-height:1.72}
-.rainbow{width:100%;max-width:380px;height:5px;border-radius:3px;
-  background:linear-gradient(90deg,#FF0018 0%,#FFA52C 17%,#FFFF41 33%,
-    #008018 50%,#0000F9 67%,#86007D 83%);opacity:.8}
-.sbtn{background:var(--gold);color:var(--night);border:none;border-radius:8px;
-  padding:14px 34px;font-family:'Inter',sans-serif;font-weight:700;
-  font-size:.97rem;cursor:pointer;letter-spacing:.04em;
-  transition:transform .13s,opacity .13s}
+.big{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,5.5vw,3.2rem);font-weight:700;color:var(--gold);line-height:1.15}
+.sub{font-family:'Share Tech Mono',monospace;font-size:clamp(.75rem,1.9vw,.95rem);color:var(--teal);letter-spacing:.12em;text-transform:uppercase}
+.ibody{font-size:clamp(.85rem,1.9vw,.97rem);color:rgba(248,244,227,.72);max-width:500px;line-height:1.72}
+.rainbow{width:100%;max-width:380px;height:5px;border-radius:3px;background:linear-gradient(90deg,#FF0018 0%,#FFA52C 17%,#FFFF41 33%,#008018 50%,#0000F9 67%,#86007D 83%);opacity:.8}
+.sbtn{background:var(--gold);color:var(--night);border:none;border-radius:8px;padding:14px 34px;font-family:'Inter',sans-serif;font-weight:700;font-size:.97rem;cursor:pointer;letter-spacing:.04em;transition:transform .13s,opacity .13s}
 .sbtn:hover{transform:translateY(-2px);opacity:.88}
 #outro-verdict{font-family:'Share Tech Mono',monospace;font-size:1.1rem;color:var(--teal)}
-
-/* LOADING SPINNER */
-#loading{display:none;align-self:center;
-  font-family:'Share Tech Mono',monospace;font-size:.78rem;
-  color:rgba(6,214,160,.55);letter-spacing:.1em;animation:pulse 1.2s ease-in-out infinite}
+#loading{display:none;align-self:center;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:rgba(6,214,160,.55);letter-spacing:.1em;animation:pulse 1.2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
-
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -184,27 +95,23 @@ body{font-family:'Inter',sans-serif;background:var(--night);color:var(--cream);m
 
 <div id="game-wrap">
   <div id="chapter-title"></div>
-
   <div id="terminal">
     <div id="t-bar">
       <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
       <span id="t-label">TURING ORACLE v1.0 · BOMBE TERMINAL · BLETCHLEY PARK</span>
     </div>
     <div id="t-body">
-      <div class="speaker" id="speaker-label">ORACLE://</div>
+      <div class="speaker">ORACLE://</div>
       <span id="t-text"></span><span id="cursor"></span>
     </div>
   </div>
-
   <button id="skip-btn" onclick="skipTyping()">[ skip ↵ ]</button>
   <div id="loading">ORACLE IS THINKING...</div>
-
   <div id="status-bar">
     <span class="slabel">Daylight</span>
     <div id="sun-track"><div id="sun-fill"></div></div>
     <span id="q-counter">0 / 5</span>
   </div>
-
   <div id="flash"></div>
   <div id="choices"></div>
   <div id="free-wrap">
@@ -215,7 +122,6 @@ body{font-family:'Inter',sans-serif;background:var(--night);color:var(--cream);m
 </div>
 
 <script>
-// ─── CONFIG ────────────────────────────────────────────────────────────────
 const TOTAL_Q = 5;
 const JUNE_TOPICS = [
   "International Sushi Day","Pride Month / LGBTQIA+","Juneteenth",
@@ -224,30 +130,19 @@ const JUNE_TOPICS = [
   "National Donut Day","the FIFA World Cup"
 ];
 
-// ─── STATE ─────────────────────────────────────────────────────────────────
-let qIndex = 0;
-let score  = 0;
-let sunPct = 100;
-let history = [];          // [{role,content}] for the API
-let typeTimer = null;
-let typeCb    = null;
-let typeFullText = '';
-let answered  = false;
-let currentMode = 'mcq';   // 'mcq' | 'free'
+let qIndex = 0, score = 0, sunPct = 100;
+let history = [], typeTimer = null, typeCb = null, typeFullText = '';
+let answered = false;
+let SYS = '';
 
-// ─── SKY ───────────────────────────────────────────────────────────────────
-function lerp(a,b,t){return a+(b-a)*t}
+// ── SKY ──────────────────────────────────────────────────────────────────────
 function lerpHex(c1,c2,t){
-  const h=(s)=>parseInt(s.slice(1),16);
-  const a=h(c1),b=h(c2);
-  const r=Math.round(lerp((a>>16)&0xff,(b>>16)&0xff,t));
-  const g=Math.round(lerp((a>>8)&0xff,(b>>8)&0xff,t));
-  const bl=Math.round(lerp(a&0xff,b&0xff,t));
-  return '#'+[r,g,bl].map(v=>v.toString(16).padStart(2,'0')).join('');
+  const h=s=>parseInt(s.slice(1),16),a=h(c1),b=h(c2);
+  const ch=(a,b)=>Math.round(a+(b-a)*t).toString(16).padStart(2,'0');
+  return '#'+ch((a>>16)&0xff,(b>>16)&0xff)+ch((a>>8)&0xff,(b>>8)&0xff)+ch(a&0xff,b&0xff);
 }
 function updateSky(pct){
-  const p=pct/100;
-  const sun=document.getElementById('sun');
+  const p=pct/100, sun=document.getElementById('sun');
   sun.style.left=(5+(1-p)*88)+'%';
   let top,bot;
   if(p>0.5){const t=(1-p)*2;top=lerpHex('#0D1B4A','#1c2855',t);bot=lerpHex('#122040','#1a1a40',t);}
@@ -256,11 +151,10 @@ function updateSky(pct){
   document.getElementById('sun-fill').style.width=pct+'%';
 }
 
-// ─── TYPEWRITER ────────────────────────────────────────────────────────────
+// ── TYPEWRITER ────────────────────────────────────────────────────────────────
 function typeText(el,text,speed,cb){
   if(typeTimer){clearTimeout(typeTimer);typeTimer=null;}
-  typeFullText=text; typeCb=cb;
-  el.textContent='';
+  typeFullText=text; typeCb=cb; el.textContent='';
   document.getElementById('skip-btn').style.display='block';
   let i=0;
   function tick(){
@@ -276,89 +170,87 @@ function skipTyping(){
   if(typeCb){const f=typeCb;typeCb=null;f();}
 }
 
-// ─── GEMINI PROXY API CALL ──────────────────────────────────────────────────
-async function callGemini(messages, systemPrompt){
-  const res = await fetch('/api/turing', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, systemPrompt })
+// ── API ───────────────────────────────────────────────────────────────────────
+async function callAI(userMsg){
+  history.push({role:'user',content:userMsg});
+  const res = await fetch('/api/turing',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:history, systemPrompt:SYS})
   });
   const data = await res.json();
   if(data.error) throw new Error(data.error);
-  return data.text;
+  history.push({role:'assistant',content:data.text});
+  return JSON.parse(data.text);
 }
 
-// ─── SYSTEM PROMPT ─────────────────────────────────────────────────────────
-function buildSystem(){
-  const topics = [...JUNE_TOPICS].sort(()=>Math.random()-.5).slice(0,5);
-  return `You are the ghost of Alan Turing, living inside a 1950s Bombe terminal. It is June 21 — the summer solstice. You are running a whimsical, witty "humanity test" on a player.
+// ── SYSTEM PROMPT ─────────────────────────────────────────────────────────────
+function buildSys(){
+  const topics=[...JUNE_TOPICS].sort(()=>Math.random()-.5).slice(0,TOTAL_Q);
+  return `You are the ghost of Alan Turing inside a 1950s Bombe terminal. June 21 — the solstice. You run a witty "humanity test" on a player.
 
-Your personality: dry British wit, quietly melancholic, genuinely curious, occasionally funny about absurd June celebrations, deeply thoughtful about identity and freedom.
+Personality: dry British wit, quietly melancholic about your fate, absurdist about silly June holidays, thoughtful about identity and freedom.
 
-You will ask exactly ${TOTAL_Q} questions total across this conversation. Available June topics to draw from (use each once, be creative): ${topics.join(', ')}.
+Ask exactly ${TOTAL_Q} questions using these topics in order: ${topics.join(' | ')}
 
-Output raw valid JSON matching exactly the requested schemas. Do not wrap responses in markdown formatting block grids.
+FOR A NEW QUESTION return ONLY this raw JSON (no markdown, no fences):
+{"chapter":"evocative title","speech":"2-3 short punchy paragraphs under 90 words","mode":"mcq","options":["A. ...","B. ...","C. ...","D. ..."],"correct":[0]}
+For free-text mode: {"chapter":"...","speech":"...","mode":"free","freePrompt":"short placeholder"}
+Alternate mcq/free starting with mcq.
+mcq: 4 options, 1-2 correct indices. Wrong answers = amusingly robotic.
 
-For a new question, return this JSON schema format:
-{
-  "chapter": "short evocative chapter title",
-  "speech": "2-4 short paragraphs. Set the scene, ask the question.",
-  "mode": "mcq", 
-  "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
-  "correct": [0]
-}
-(If mode is "free", omit "options" and "correct", and add "freePrompt": "short label")
+FOR A REACTION to an answer return ONLY:
+{"reaction":"Exactly 2 witty sentences reacting to their specific choice. Be personal."}
 
-For an evaluation/reaction to an answer, return this JSON schema format:
-{ 
-  "reaction": "2 sentences reacting to what they chose or wrote. Warm, witty, wistful." 
-}`;
+Rules: raw JSON only. Under 90 words for speech. Never repeat topics.`;
 }
 
-// ─── SHOW LOADING ──────────────────────────────────────────────────────────
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
 function setLoading(on){
-  document.getElementById('loading').style.display = on ? 'block' : 'none';
-  document.getElementById('cursor').style.display  = on ? 'none' : 'inline-block';
+  document.getElementById('loading').style.display=on?'block':'none';
+  document.getElementById('cursor').style.display=on?'none':'inline-block';
+}
+function updateCounter(){
+  document.getElementById('q-counter').textContent=qIndex+' / '+TOTAL_Q;
+}
+function showFlash(msg,good){
+  const f=document.getElementById('flash');
+  f.textContent=(good?'✓  ':'✗  ')+msg;
+  f.className=good?'ok':'bad';
+}
+function resetUI(){
+  const c=document.getElementById('choices');
+  c.classList.remove('show'); c.innerHTML='';
+  document.getElementById('free-wrap').style.display='none';
+  document.getElementById('next-btn').style.display='none';
+  document.getElementById('flash').className='';
+  document.getElementById('flash').textContent='';
+  document.getElementById('free-input').value='';
+  document.getElementById('free-input').disabled=false;
+  document.getElementById('free-submit').disabled=false;
 }
 
-// ─── RENDER QUESTION ───────────────────────────────────────────────────────
+// ── RENDER QUESTION ───────────────────────────────────────────────────────────
 function renderQuestion(q){
-  answered = false;
-  currentMode = q.mode;
-
-  // Chapter title
-  const ct = document.getElementById('chapter-title');
+  answered=false;
+  const ct=document.getElementById('chapter-title');
   ct.classList.remove('show');
-  setTimeout(()=>{ct.textContent=q.chapter||`Question ${qIndex+1}`;ct.classList.add('show');},80);
-
-  // Reset UI
-  const choicesEl = document.getElementById('choices');
-  const freeWrap  = document.getElementById('free-wrap');
-  const nextBtn   = document.getElementById('next-btn');
-  const flash     = document.getElementById('flash');
-  choicesEl.classList.remove('show');
-  choicesEl.innerHTML='';
-  freeWrap.style.display='none';
-  nextBtn.style.display='none';
-  flash.className=''; flash.textContent='';
-  document.getElementById('free-input').value='';
-
-  // Type the speech
-  typeText(document.getElementById('t-text'), q.speech, 13, ()=>{
+  setTimeout(()=>{ct.textContent=q.chapter||('Q'+(qIndex+1));ct.classList.add('show');},80);
+  resetUI();
+  typeText(document.getElementById('t-text'),q.speech,13,()=>{
     if(q.mode==='mcq'){
-      buildMCQ(q.options, q.correct);
-      setTimeout(()=>choicesEl.classList.add('show'),100);
+      buildMCQ(q.options,q.correct);
+      setTimeout(()=>document.getElementById('choices').classList.add('show'),100);
     } else {
-      freeWrap.style.display='flex';
+      document.getElementById('free-wrap').style.display='flex';
       document.getElementById('free-input').focus();
     }
   });
 }
 
-// ─── MCQ ───────────────────────────────────────────────────────────────────
-function buildMCQ(options, correct){
-  const el=document.getElementById('choices');
-  el.innerHTML='';
+// ── MCQ ───────────────────────────────────────────────────────────────────────
+function buildMCQ(options,correct){
+  const el=document.getElementById('choices'); el.innerHTML='';
   options.forEach((opt,i)=>{
     const btn=document.createElement('button');
     btn.className='cbtn'; btn.textContent=opt;
@@ -366,151 +258,100 @@ function buildMCQ(options, correct){
     el.appendChild(btn);
   });
 }
-
-async function handleMCQ(idx, options, correct){
-  if(answered) return;
-  answered=true;
-  qIndex++;
-
+async function handleMCQ(idx,options,correct){
+  if(answered)return; answered=true; qIndex++;
   const btns=[...document.querySelectorAll('.cbtn')];
   btns.forEach(b=>b.classList.add('disabled'));
-
-  const isCorrect = correct.includes(idx);
-  btns[idx].classList.add(isCorrect?'correct':'wrong');
-  if(!isCorrect) correct.forEach(ci=>btns[ci]?.classList.add('correct'));
-
-  if(isCorrect) score++;
-  sunPct = Math.max(8, sunPct - (isCorrect ? 5 : 20));
-  updateSky(sunPct);
-  updateCounter();
-
-  const chosenText = options[idx];
-  history.push({role:'user', content:`Player chose: "${chosenText}". Was correct: ${isCorrect}.`});
-
+  const ok=correct.includes(idx);
+  btns[idx].classList.add(ok?'correct':'wrong');
+  if(!ok) correct.forEach(ci=>btns[ci]&&btns[ci].classList.add('correct'));
+  if(ok) score++;
+  sunPct=Math.max(8,sunPct-(ok?5:20));
+  updateSky(sunPct); updateCounter();
   setLoading(true);
   try{
-    const raw = await callGemini(history, buildSystem._sys);
-    const parsed = JSON.parse(raw);
-    history.push({role:'assistant', content:raw});
-    showFlash(parsed.reaction || '', isCorrect);
-  } catch(e){
-    showFlash(isCorrect ? '✓ Correct. Very human of you.' : '✗ A machine answer. Try again.', isCorrect);
-  }
+    const r=await callAI(`Player chose: "${options[idx]}". Was correct: ${ok}.`);
+    showFlash(r.reaction||(ok?'Correct.':'Incorrect.'),ok);
+  }catch(e){showFlash(ok?'✓ Very human.':'✗ Too mechanical.',ok);}
   setLoading(false);
-  setTimeout(()=>{document.getElementById('next-btn').style.display='block';},300);
+  setTimeout(()=>document.getElementById('next-btn').style.display='block',300);
 }
 
-// ─── FREE TEXT ─────────────────────────────────────────────────────────────
+// ── FREE TEXT ─────────────────────────────────────────────────────────────────
 async function submitFreeAnswer(){
-  if(answered) return;
-  const val = document.getElementById('free-input').value.trim();
-  if(!val) return;
-  answered=true;
-  qIndex++;
-
+  if(answered)return;
+  const val=document.getElementById('free-input').value.trim();
+  if(!val)return;
+  answered=true; qIndex++;
   document.getElementById('free-submit').disabled=true;
   document.getElementById('free-input').disabled=true;
-
-  sunPct = Math.max(8, sunPct - 5); 
-  score += 0.5; 
-  updateSky(sunPct);
-  updateCounter();
-
-  history.push({role:'user', content:`Player's free answer: "${val}"`});
+  sunPct=Math.max(8,sunPct-5); score+=0.5;
+  updateSky(sunPct); updateCounter();
   setLoading(true);
   try{
-    const raw = await callGemini(history, buildSystem._sys);
-    const parsed = JSON.parse(raw);
-    history.push({role:'assistant', content:raw});
-    showFlash((parsed.reaction||'Fascinating. You are almost certainly human.'), true);
-  } catch(e){
-    showFlash('Intriguing response. Noted.', true);
-  }
+    const r=await callAI(`Player free answer: "${val}"`);
+    showFlash(r.reaction||'Fascinating. Noted.',true);
+  }catch(e){showFlash('Intriguing. Noted.',true);}
   setLoading(false);
   document.getElementById('free-wrap').style.display='none';
-  setTimeout(()=>{document.getElementById('next-btn').style.display='block';},300);
+  setTimeout(()=>document.getElementById('next-btn').style.display='block',300);
 }
 
-// ─── FLASH ─────────────────────────────────────────────────────────────────
-function showFlash(msg, good){
-  const f=document.getElementById('flash');
-  f.textContent=(good?'✓  ':'✗  ')+msg;
-  f.className=good?'ok':'bad';
-}
-
-// ─── COUNTER ───────────────────────────────────────────────────────────────
-function updateCounter(){
-  document.getElementById('q-counter').textContent=qIndex+' / '+TOTAL_Q;
-}
-
-// ─── NEXT QUESTION ─────────────────────────────────────────────────────────
+// ── NEXT ──────────────────────────────────────────────────────────────────────
 async function nextQuestion(){
   document.getElementById('next-btn').style.display='none';
   document.getElementById('flash').className='';
   document.getElementById('flash').textContent='';
   document.getElementById('choices').classList.remove('show');
   document.getElementById('choices').innerHTML='';
-
-  if(qIndex >= TOTAL_Q){ showOutro(); return; }
-
-  history.push({role:'user', content:`Ask question ${qIndex+1} of ${TOTAL_Q}. Pick a fresh June topic not yet used.`});
+  if(qIndex>=TOTAL_Q){showOutro();return;}
   setLoading(true);
   document.getElementById('t-text').textContent='';
   try{
-    const raw = await callGemini(history, buildSystem._sys);
-    const q   = JSON.parse(raw);
-    history.push({role:'assistant', content:raw});
+    const q=await callAI(`Ask question ${qIndex+1} of ${TOTAL_Q}. New topic, not used before.`);
+    setLoading(false); renderQuestion(q);
+  }catch(e){
     setLoading(false);
-    renderQuestion(q);
-  } catch(e){
-    setLoading(false);
-    document.getElementById('t-text').textContent='[TRANSMISSION ERROR — BOMBE OFFLINE. REFRESH AND TRY AGAIN.]';
+    document.getElementById('t-text').textContent='[BOMBE OFFLINE — '+(e.message||'unknown error')+']';
+    document.getElementById('next-btn').style.display='block';
   }
 }
 
-// ─── OUTRO ─────────────────────────────────────────────────────────────────
+// ── OUTRO ─────────────────────────────────────────────────────────────────────
 function showOutro(){
-  const pct = Math.round((score/TOTAL_Q)*100);
-  let title, body;
-  if(pct>=80){title="Irrefutably Human";body="Turing is satisfied. You were imperfect, creative, and wonderfully irrational. Exactly as required.";}
-  else if(pct>=50){title="Mostly Organic";body="Some answers were worryingly systematic. But the human moments outweighed them. Turing recommends going outside and eating something that doesn't require an algorithm.";}
-  else{title="Suspiciously Algorithmic";body="Turing is unconvinced. He suggests attending a solstice celebration and trying again tomorrow — the longest day waits for no one.";}
-  document.getElementById('outro-title').textContent=title;
+  const pct=Math.round((score/TOTAL_Q)*100);
+  const t=pct>=80?"Irrefutably Human":pct>=50?"Mostly Organic":"Suspiciously Algorithmic";
+  const b=pct>=80?"Turing is satisfied. Imperfect, creative, wonderfully irrational. Exactly as required.":
+          pct>=50?"Some answers were worryingly systematic. The human moments won out. Go eat a donut.":
+          "You answered like a very polite toaster. Turing has seen warmer responses from a punch card. Step outside, feel the sun on your face, eat something ridiculous — then come back and try again.";
+  document.getElementById('outro-title').textContent=t;
   document.getElementById('outro-verdict').textContent=Math.round(score)+' / '+TOTAL_Q;
-  document.getElementById('outro-body').textContent=body;
+  document.getElementById('outro-body').textContent=b;
   document.getElementById('outro').style.display='flex';
 }
 
-// ─── START ─────────────────────────────────────────────────────────────────
+// ── START ─────────────────────────────────────────────────────────────────────
 async function startGame(){
   document.getElementById('intro').style.display='none';
+  document.getElementById('outro').style.display='none';
   qIndex=0; score=0; sunPct=100; history=[];
   document.getElementById('sun').classList.remove('setting');
   updateSky(100); updateCounter();
-
-  buildSystem._sys = buildSystem();
-
-  history.push({role:'user', content:`Begin. Ask question 1 of ${TOTAL_Q}.`});
+  SYS=buildSys();
   setLoading(true);
   document.getElementById('t-text').textContent='';
   try{
-    const raw = await callGemini(history, buildSystem._sys);
-    const q   = JSON.parse(raw);
-    history.push({role:'assistant', content:raw});
+    const q=await callAI('Begin. Ask question 1 of '+TOTAL_Q+'.');
+    setLoading(false); renderQuestion(q);
+  }catch(e){
     setLoading(false);
-    renderQuestion(q);
-  } catch(e){
-    setLoading(false);
-    document.getElementById('t-text').textContent='[BOMBE TERMINAL OFFLINE. CHECK CONNECTION AND REFRESH.]';
+    document.getElementById('t-text').textContent='[BOMBE OFFLINE — '+(e.message||'Check HF_TOKEN in Vercel env vars')+']';
   }
 }
-
 function restartGame(){
   document.getElementById('outro').style.display='none';
   startGame();
 }
-
-// Boot sky
 updateSky(100);
 </script>
 </body>
