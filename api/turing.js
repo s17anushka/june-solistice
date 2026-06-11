@@ -20,30 +20,28 @@ export default async function handler(req, res) {
     }
     const { messages, systemPrompt } = body;
 
-    // Strict formatting constraint
-    const structuralEnforcer = `\n\n[CRITICAL RULE: Return ONLY a raw, valid JSON string matching the game schema. Do not include markdown code blocks like \`\`\`json. Start directly with { and end with }.]`;
+    const structuralEnforcer = `\n\n[CRITICAL RULE: Return ONLY a raw, valid JSON string matching the requested game schema. Do not include markdown code blocks like \`\`\`json. Start directly with { and end with }.]`;
 
     const formattedMessages = [
       { role: 'system', content: systemPrompt + structuralEnforcer },
       ...messages
     ];
 
-    // SINGLE STABLE FREE MODEL
     const payload = JSON.stringify({
-      model: 'openrouter/auto:free', 
+      model: 'meta-llama/Meta-Llama-3-8B-Instruct', // Permanent 100% Free active model
       messages: formattedMessages,
-      temperature: 0.3,
+      temperature: 0.1, // Super low temperature for strict JSON output
       max_tokens: 800
     });
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const hfToken = process.env.HF_TOKEN;
 
     const options = {
-      hostname: 'openrouter.ai',
-      path: '/api/v1/chat/completions',
+      hostname: 'api-inference.huggingface.co',
+      path: '/v1/chat/completions', // Standard OpenAI compatible endpoint mapping
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${hfToken}`,
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(payload)
       }
@@ -63,12 +61,11 @@ export default async function handler(req, res) {
     const data = JSON.parse(apiResponse.data);
 
     if (data.error) {
-      return res.status(200).json({ text: JSON.stringify({ chapter: "API Error", speech: `Error: ${data.error.message}`, mode: "free" }) });
+      return res.status(200).json({ text: JSON.stringify({ chapter: "Hugging Face Error", speech: `API Error: ${data.error.message || data.error}`, mode: "free" }) });
     }
 
     let replyText = data.choices[0].message.content;
 
-    // Heavy regex slice safely ensuring frontend doesn't crash on invalid JSON wrapping
     if (replyText) {
       if (replyText.includes("```")) {
         replyText = replyText.replace(/```json|```/g, "").trim();
